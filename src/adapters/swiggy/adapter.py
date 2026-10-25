@@ -52,8 +52,12 @@ class SwiggyInstamartAdapter(OrderSource):
         access_token: Optional[str] = None,
         use_demo_data: bool = False,
     ):
-        self.access_token = access_token or get_valid_access_token()
-        self.use_demo_data = use_demo_data or not self.access_token
+        if use_demo_data:
+            self.access_token = access_token or "demo_token"
+            self.use_demo_data = True
+        else:
+            self.access_token = access_token or get_valid_access_token()
+            self.use_demo_data = not self.access_token
 
         # Security check: Ensure no forbidden tools are ever registered
         for tool in FORBIDDEN_TOOLS:

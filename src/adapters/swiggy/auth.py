@@ -37,14 +37,20 @@ CALLBACK_PORT = 8000
 
 def get_token_file_path() -> Path:
     """Returns the secure local path where the token is persisted."""
+    if os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+        return Path("/tmp/tokens.json")
+
     if os.name == "nt":
         base = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
     else:
         base = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share"))
 
-    token_dir = base / "price_history"
-    token_dir.mkdir(parents=True, exist_ok=True)
-    return token_dir / "tokens.json"
+    try:
+        token_dir = base / "price_history"
+        token_dir.mkdir(parents=True, exist_ok=True)
+        return token_dir / "tokens.json"
+    except (OSError, PermissionError):
+        return Path("/tmp/tokens.json")
 
 
 def save_tokens(token_payload: Dict[str, Any]) -> None:

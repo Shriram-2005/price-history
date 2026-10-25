@@ -42,14 +42,17 @@ except (OSError, PermissionError):
 
 storage = Storage()
 
-# Auto-seed database if running on Vercel/serverless or fresh environment
-try:
-    if storage.get_summary_stats().get("orders_count", 0) == 0:
-        adapter = SwiggyInstamartAdapter(use_demo_data=True)
-        orchestrator = SyncOrchestrator(storage, adapter)
-        orchestrator.run_sync()
-except Exception:
-    pass
+def ensure_seeded():
+    """Auto-seeds database if running in a fresh serverless /tmp container."""
+    try:
+        if storage.get_summary_stats().get("orders_count", 0) == 0:
+            adapter = SwiggyInstamartAdapter(use_demo_data=True)
+            orchestrator = SyncOrchestrator(storage, adapter)
+            orchestrator.run_sync()
+    except Exception as e:
+        logger.error(f"Auto-seed error: {e}")
+
+ensure_seeded()
 
 
 class ChatMessageRequest(BaseModel):
@@ -64,6 +67,7 @@ class SyncRequest(BaseModel):
 @app.get("/stats")
 def get_stats() -> Dict[str, Any]:
     """Returns overview statistics of orders, products, and observations."""
+    ensure_seeded()
     return storage.get_summary_stats()
 
 
@@ -71,6 +75,7 @@ def get_stats() -> Dict[str, Any]:
 @app.get("/products")
 def get_products() -> List[Dict[str, Any]]:
     """Returns list of tracked products with latest unit prices and pack details."""
+    ensure_seeded()
     products = storage.get_all_products()
     results = []
 
@@ -107,6 +112,7 @@ def get_products() -> List[Dict[str, Any]]:
 @app.get("/products/{product_id}/timeline")
 def get_product_timeline(product_id: int) -> Dict[str, Any]:
     """Returns detailed observation timeline for a specific product."""
+    ensure_seeded()
     products = storage.get_all_products()
     product = next((p for p in products if p.id == product_id), None)
     if not product:
@@ -151,6 +157,7 @@ def get_product_timeline(product_id: int) -> Dict[str, Any]:
 @app.get("/live-deals")
 def get_live_deals() -> List[Dict[str, Any]]:
     """Compares current Instamart store listings against last paid prices."""
+    ensure_seeded()
     adapter = SwiggyInstamartAdapter(use_demo_data=True)
     live_items = adapter.search_products("Fortune") + adapter.search_products("Atta")
     products = storage.get_all_products()
@@ -207,6 +214,7 @@ def chat_copilot(req: ChatMessageRequest) -> Dict[str, Any]:
     per-unit price comparisons, and shelf-life recommendations.
     Strictly professional language: No emojis, fully cited facts.
     """
+    ensure_seeded()
     user_query = req.message.lower().strip()
     products = storage.get_all_products()
 
