@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Swiggy Authentication Callback | Price History</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .callback-card {
+      background: var(--surface-panel);
+      border: 1px solid var(--border-line);
+      border-radius: var(--radius-xl);
+      padding: 36px 32px;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+      box-shadow: var(--shadow-pop);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .callback-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: var(--radius-lg);
+      background: var(--emerald-subtle);
+      border: 1px solid var(--emerald-border);
+      color: var(--emerald-400);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .callback-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .callback-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .callback-uri {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 8px 14px;
+      background: var(--bg-canvas);
+      border: 1px solid var(--border-line);
+      border-radius: var(--radius-md);
+      color: var(--accent-swiggy);
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="callback-card">
+    <div class="callback-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+    <h1 class="callback-title">Authentication Endpoint Verified</h1>
+    <p class="callback-desc">
+      This is the production OAuth 2.1 callback URL for <strong>Price History</strong>.
+      Authorization codes issued by Swiggy Builders Club MCP are validated here and exchanged for secure session tokens.
+    </p>
+    <div class="callback-uri" id="currentUri">
+      https://price-history-two.vercel.app/auth/callback
+    </div>
+    <a href="/" class="btn btn-primary" style="margin-top: 8px;">
+      <span>Open Price History Vault</span>
+    </a>
+  </div>
+  <script>
+    if (window.location.href) {
+      const el = document.getElementById('currentUri');
+      if (el) el.textContent = window.location.origin + '/auth/callback';
+    }
+  </script>
+</body>
+</html>

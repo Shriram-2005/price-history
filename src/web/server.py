@@ -61,12 +61,14 @@ class SyncRequest(BaseModel):
 
 
 @app.get("/api/stats")
+@app.get("/stats")
 def get_stats() -> Dict[str, Any]:
     """Returns overview statistics of orders, products, and observations."""
     return storage.get_summary_stats()
 
 
 @app.get("/api/products")
+@app.get("/products")
 def get_products() -> List[Dict[str, Any]]:
     """Returns list of tracked products with latest unit prices and pack details."""
     products = storage.get_all_products()
@@ -102,6 +104,7 @@ def get_products() -> List[Dict[str, Any]]:
 
 
 @app.get("/api/products/{product_id}/timeline")
+@app.get("/products/{product_id}/timeline")
 def get_product_timeline(product_id: int) -> Dict[str, Any]:
     """Returns detailed observation timeline for a specific product."""
     products = storage.get_all_products()
@@ -145,6 +148,7 @@ def get_product_timeline(product_id: int) -> Dict[str, Any]:
 
 
 @app.get("/api/live-deals")
+@app.get("/live-deals")
 def get_live_deals() -> List[Dict[str, Any]]:
     """Compares current Instamart store listings against last paid prices."""
     adapter = SwiggyInstamartAdapter(use_demo_data=True)
@@ -186,6 +190,7 @@ def get_live_deals() -> List[Dict[str, Any]]:
 
 
 @app.post("/api/sync")
+@app.post("/sync")
 def trigger_sync(req: SyncRequest) -> Dict[str, Any]:
     """Runs idempotent sync pull."""
     adapter = SwiggyInstamartAdapter(use_demo_data=req.demo)
@@ -194,6 +199,7 @@ def trigger_sync(req: SyncRequest) -> Dict[str, Any]:
 
 
 @app.post("/api/chat")
+@app.post("/chat")
 def chat_copilot(req: ChatMessageRequest) -> Dict[str, Any]:
     """Grounded Conversational Reorder Assistant (FR-17 & FR-18).
     
@@ -389,6 +395,7 @@ def chat_copilot(req: ChatMessageRequest) -> Dict[str, Any]:
 
 
 @app.post("/api/purge")
+@app.post("/purge")
 def purge_vault() -> Dict[str, Any]:
     """DPDP 2023 Right to Erasure - completely erases all local purchase data."""
     storage.purge_all_data()

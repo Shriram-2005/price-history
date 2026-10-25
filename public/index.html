@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Price History | Personal Price Intelligence</title>
+  <meta name="description" content="Local-first price intelligence and grocery staple tracker for Swiggy Instamart. DPDP 2023 compliant, read-only MCP reorder copilot.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="header-inner">
+      <!-- Brand Identity -->
+      <div class="brand">
+        <div class="brand-badge">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <div class="brand-info">
+          <span class="brand-title">Price History</span>
+          <span class="brand-tag">Instamart Intelligence</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs" role="tablist">
+        <button class="nav-tab active" data-tab="tab-trends" role="tab" aria-selected="true">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          <span>Price Trends</span>
+        </button>
+        <button class="nav-tab" data-tab="tab-vault" role="tab" aria-selected="false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+          <span>Staples Vault</span>
+        </button>
+        <button class="nav-tab" data-tab="tab-deals" role="tab" aria-selected="false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="2"></circle>
+            <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path>
+          </svg>
+          <span>Store Radar</span>
+        </button>
+        <button class="nav-tab" data-tab="tab-copilot" role="tab" aria-selected="false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span>Reorder Copilot</span>
+        </button>
+      </nav>
+
+      <!-- Right Header Actions -->
+      <div class="header-actions">
+        <div class="status-indicator" title="Local SQLite WAL storage active">
+          <span class="status-dot"></span>
+          <span class="status-label">Local Vault</span>
+        </div>
+        <button class="btn btn-ghost" id="btnPrivacyModal" title="Security & DPDP 2023 verification">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          <span>Security</span>
+        </button>
+        <button class="btn btn-primary" id="btnSync">
+          <svg class="sync-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span id="syncBtnText">Sync Orders</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-main">
+    <!-- Top KPI Stats Row (Clean, uncluttered, spacious) -->
+    <section class="stats-overview">
+      <div class="stat-box">
+        <div class="stat-top">
+          <span class="stat-title">Orders Synchronized</span>
+          <svg class="stat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+        </div>
+        <div class="stat-value" id="kpiOrdersCount">4 Orders</div>
+        <div class="stat-sub">15-day Instamart order window</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-top">
+          <span class="stat-title">Tracked Staples</span>
+          <svg class="stat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+          </svg>
+        </div>
+        <div class="stat-value" id="kpiProductsCount">7 SKUs</div>
+        <div class="stat-sub">Pack sizes strictly isolated</div>
+      </div>
+
+      <div class="stat-box stat-box-alert">
+        <div class="stat-top">
+          <span class="stat-title">Price Creep Alert</span>
+          <svg class="stat-icon text-rose" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+        </div>
+        <div class="stat-value text-rose" id="kpiAlertValue">+7.6% Hike</div>
+        <div class="stat-sub text-rose-sub">Fortune Oil 1L (INR 172 to 185/L)</div>
+      </div>
+
+      <div class="stat-box stat-box-savings">
+        <div class="stat-top">
+          <span class="stat-title">Pack Optimization</span>
+          <svg class="stat-icon text-emerald" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="m16 12-4-4-4 4"></path>
+            <path d="M12 16V8"></path>
+          </svg>
+        </div>
+        <div class="stat-value text-emerald" id="kpiSavingsValue">INR 29.00 / L</div>
+        <div class="stat-sub text-emerald-sub">Switch 1L to 5L saves 15.7%</div>
+      </div>
+    </section>
+
+    <!-- Tab 1: Price Trends & Visual Analytics (Default View) -->
+    <section class="tab-content active" id="tab-trends">
+      <div class="panel">
+        <!-- Panel Header -->
+        <div class="panel-header">
+          <div class="panel-title-area">
+            <h2 class="panel-title">Normalized Unit Price Trajectory</h2>
+            <p class="panel-desc">Calculated per-litre and per-kg commodity price history across your orders</p>
+          </div>
+          <div class="panel-controls">
+            <label for="productSelect" class="visually-hidden">Select Product</label>
+            <select id="productSelect" class="clean-select">
+              <!-- Dynamically populated via app.js -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Quick Product Switcher Pills -->
+        <div class="product-pills-bar" id="productPillsBar">
+          <!-- Populated dynamically with each staple -->
+        </div>
+
+        <!-- Metric Highlight Bar -->
+        <div class="metric-ribbon">
+          <div class="metric-item">
+            <span class="metric-k">Selected Staple</span>
+            <span class="metric-v" id="summaryProductName">Fortune Sunlite Sunflower Oil</span>
+          </div>
+          <div class="metric-divider"></div>
+          <div class="metric-item">
+            <span class="metric-k">Pack Specification</span>
+            <span class="metric-v" id="summaryPackSize">1 L</span>
+          </div>
+          <div class="metric-divider"></div>
+          <div class="metric-item">
+            <span class="metric-k">Baseline Paid</span>
+            <span class="metric-v" id="summaryBaselinePrice">INR 165.00 / L</span>
+          </div>
+          <div class="metric-divider"></div>
+          <div class="metric-item">
+            <span class="metric-k">Current Unit Price</span>
+            <span class="metric-v text-rose" id="summaryLatestPrice">INR 185.00 / L</span>
+          </div>
+          <div class="metric-divider"></div>
+          <div class="metric-item">
+            <span class="metric-k">Net Trajectory</span>
+            <span class="trend-badge trend-hike" id="summaryVarianceBadge">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7 7 17 7 17 17"></polyline>
+              </svg>
+              <span>+12.1% Rise</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Chart Container -->
+        <div class="chart-wrapper">
+          <canvas id="timelineChart"></canvas>
+        </div>
+
+        <!-- Pack Size Optimization Insight Card (FR-18) -->
+        <div class="insight-card" id="packOptBanner">
+          <div class="insight-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <div class="insight-body">
+            <h3 class="insight-title">Pack Size Optimization Intelligence (FR-18)</h3>
+            <p class="insight-text">
+              Current unit price for <strong>1 Litre Pouch is INR 185.00 / L</strong>.
+              Upgrading to the <strong>5 Litre Can (INR 780.00 = INR 156.00 / L)</strong> saves <strong>INR 29.00 / L (-15.7%)</strong>.
+              Based on your monthly consumption (~1.2 L/month), a 5 L pack provides 4.2 months supply. Ensure shelf-life exceeds 5 months before ordering.
+            </p>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btnDraftBestPack">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            <span>Draft 5L Can</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2: Staples Vault (Clean Data Table) -->
+    <section class="tab-content" id="tab-vault">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title-area">
+            <h2 class="panel-title">Personal Staples Vault</h2>
+            <p class="panel-desc">All grocery items synchronized from Instamart order receipts with normalized unit prices</p>
+          </div>
+          <div class="table-search-box">
+            <svg class="search-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="searchInput" placeholder="Search staples, brands..." class="clean-input">
+          </div>
+        </div>
+
+        <div class="table-frame">
+          <table class="clean-table" id="vaultTable">
+            <thead>
+              <tr>
+                <th>Staple Item &amp; Brand</th>
+                <th>Pack Size</th>
+                <th>Last Paid Total</th>
+                <th>Standard Unit Price</th>
+                <th>15-Day Trend</th>
+                <th>Receipts</th>
+                <th>Inspect</th>
+              </tr>
+            </thead>
+            <tbody id="vaultTableBody">
+              <!-- Dynamically populated via app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Store Radar (Live vs Past Prices) -->
+    <section class="tab-content" id="tab-deals">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title-area">
+            <h2 class="panel-title">Live Store Deal Radar</h2>
+            <p class="panel-desc">Real-time Instamart store catalog prices compared against your last paid prices</p>
+          </div>
+          <div class="badge badge-subtle">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span>Live Catalog Probe</span>
+          </div>
+        </div>
+
+        <div class="table-frame">
+          <table class="clean-table" id="dealsTable">
+            <thead>
+              <tr>
+                <th>Store Item</th>
+                <th>Current Live Price</th>
+                <th>Last Paid in Vault</th>
+                <th>Last Purchase Date</th>
+                <th>Variance</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="dealsTableBody">
+              <!-- Dynamically populated via app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: Reorder Copilot (Dedicated Focus Workspace) -->
+    <section class="tab-content" id="tab-copilot">
+      <div class="copilot-workspace">
+        <div class="copilot-container">
+          <!-- Copilot Intro Header -->
+          <div class="copilot-intro">
+            <div class="copilot-avatar">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </div>
+            <div class="copilot-intro-text">
+              <h2 class="copilot-intro-title">Instamart Reorder Copilot</h2>
+              <p class="copilot-intro-desc">
+                Cites verified order receipts from your local vault. Analyzes unit price trends and drafts safe reorders without financial mutations.
+              </p>
+            </div>
+          </div>
+
+          <!-- Quick Query Chips -->
+          <div class="prompt-chips-bar">
+            <button class="chip-item" data-query="Did my cooking oil price go up?">
+              <span>Did cooking oil price rise?</span>
+            </button>
+            <button class="chip-item" data-query="What is the best value pack for sunflower oil?">
+              <span>Best value pack for oil?</span>
+            </button>
+            <button class="chip-item" data-query="Check status of flour and staple items.">
+              <span>Check flour &amp; staples</span>
+            </button>
+            <button class="chip-item" data-query="Audit dairy and household supplies.">
+              <span>Audit dairy &amp; detergent</span>
+            </button>
+          </div>
+
+          <!-- Chat Thread -->
+          <div class="chat-viewport" id="chatThread">
+            <div class="chat-bubble chat-bubble-assistant">
+              <div class="bubble-content">
+                Welcome. I am your Instamart Reorder Copilot. I analyze your past grocery orders, calculate per-unit prices across pack sizes, and evaluate store deals without external data leaks.
+                <br><br>
+                Ask any question about your grocery purchases or select a suggested inquiry above.
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat Input Bar -->
+          <form class="copilot-input-bar" id="chatForm">
+            <input 
+              type="text" 
+              id="chatInput" 
+              class="copilot-input" 
+              placeholder="Ask about price trends, pack sizes, or staple items..."
+              autocomplete="off"
+            >
+            <button type="submit" class="btn btn-primary btn-icon" id="btnChatSend" title="Send query">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Security & Privacy Modal (DPDP 2023) -->
+  <div class="modal-backdrop" id="privacyModal" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-head">
+        <div class="modal-head-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          <h3>Privacy Architecture &amp; DPDP 2023 Compliance</h3>
+        </div>
+        <button class="modal-close" id="btnClosePrivacyModal" title="Close modal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-content">
+        <div class="rule-box">
+          <div class="rule-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <strong>Local-First Storage Guarantee</strong>
+          </div>
+          <p class="rule-desc">
+            All order receipts, line items, and price observations remain solely on your machine in SQLite WAL mode at:
+            <code class="path-code" id="dbPathDisplay">%LOCALAPPDATA%\price_history\price_history.db</code>
+          </p>
+        </div>
+
+        <div class="rule-box">
+          <div class="rule-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <strong>Strict Read-Only MCP Protocol (FR-20)</strong>
+          </div>
+          <p class="rule-desc">
+            The adapter communicates with Swiggy Builders Club MCP using read-only endpoints (<code>get_orders</code>, <code>get_order_details</code>, <code>search_products</code>). Mutating tools (<code>place_order</code>, <code>make_payment</code>, <code>clear_cart</code>) are barred at code level.
+          </p>
+        </div>
+
+        <div class="rule-box">
+          <div class="rule-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <strong>Zero External Cloud Telemetry</strong>
+          </div>
+          <p class="rule-desc">
+            No telemetry, analytics trackers, or user behavioral tokens leave your local device.
+          </p>
+        </div>
+
+        <div class="rule-box rule-box-purge">
+          <div class="rule-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-rose">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            <strong>DPDP Right to Erasure</strong>
+          </div>
+          <p class="rule-desc">
+            You can erase all stored purchase observations and cached receipts instantly at any time.
+          </p>
+          <button class="btn btn-danger btn-sm" id="btnPurgeData">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            <span>Purge Vault Data</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast Container -->
+  <div class="toast-hub" id="toastContainer"></div>
+
+  <!-- Load Local Chart.js with CDN Fallback -->
+  <script src="/static/chart.umd.js"></script>
+  <script>
+    if (typeof Chart === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"><\/script>');
+    }
+  </script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
