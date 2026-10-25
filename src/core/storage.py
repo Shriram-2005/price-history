@@ -28,17 +28,24 @@ from src.core.models import (
 def get_default_db_path() -> Path:
     """Returns the default secure path for the local SQLite database.
     
+    Serverless (Vercel/Lambda): /tmp/price_history.db
     Windows: %LOCALAPPDATA%/price_history/price_history.db
     macOS/Linux: ~/.local/share/price_history/price_history.db
     """
+    if os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+        return Path("/tmp/price_history.db")
+
     if os.name == "nt":
         base = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
     else:
         base = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share"))
 
-    app_dir = base / "price_history"
-    app_dir.mkdir(parents=True, exist_ok=True)
-    return app_dir / "price_history.db"
+    try:
+        app_dir = base / "price_history"
+        app_dir.mkdir(parents=True, exist_ok=True)
+        return app_dir / "price_history.db"
+    except (OSError, PermissionError):
+        return Path("/tmp/price_history.db")
 
 
 class Storage:
@@ -46,7 +53,10 @@ class Storage:
 
     def __init__(self, db_path: Optional[Path | str] = None):
         self.db_path = Path(db_path) if db_path else get_default_db_path()
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        except (OSError, PermissionError):
+            pass
         self._init_db()
 
     def get_connection(self) -> sqlite3.Connection:

@@ -35,9 +35,21 @@ app.add_middleware(
 )
 
 STATIC_DIR = Path(__file__).parent / "static"
-STATIC_DIR.mkdir(parents=True, exist_ok=True)
+try:
+    STATIC_DIR.mkdir(parents=True, exist_ok=True)
+except (OSError, PermissionError):
+    pass
 
 storage = Storage()
+
+# Auto-seed database if running on Vercel/serverless or fresh environment
+try:
+    if storage.get_summary_stats().get("orders_count", 0) == 0:
+        adapter = SwiggyInstamartAdapter(use_demo_data=True)
+        orchestrator = SyncOrchestrator(storage, adapter)
+        orchestrator.run_sync()
+except Exception:
+    pass
 
 
 class ChatMessageRequest(BaseModel):
