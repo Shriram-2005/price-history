@@ -1,0 +1,2 @@
+"""Price History package."""
+__version__ = "0.1.0"
